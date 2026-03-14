@@ -1,1 +1,187 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>🐺 Loup-Garou Online</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cinzel:wght@400;600;700&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/style.css"/>
+</head>
+<body>
+<canvas id="stars"></canvas>
+<div class="bg-overlay"></div>
+<div class="moon-wrap"><div class="moon"></div></div>
+<div class="forest"></div>
+<div class="mist"></div>
 
+<!-- AUTH -->
+<div id="s-auth" class="screen active">
+  <div class="card auth-card">
+    <div class="logo-wrap">
+      <span class="wolf-big">🐺</span>
+      <h1 class="title">LOUP-GAROU</h1>
+      <p class="subtitle">Le Village des Ombres</p>
+    </div>
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('login')">Connexion</button>
+      <button class="tab" onclick="switchTab('register')">Inscription</button>
+    </div>
+    <!-- Login -->
+    <div id="t-login" class="tab-body active">
+      <div class="field"><label>Pseudo</label><input id="l-user" type="text" placeholder="Ton pseudo..."/></div>
+      <div class="field"><label>Mot de passe</label><input id="l-pass" type="password" placeholder="••••••••"/></div>
+      <button class="btn-main" onclick="login()">Entrer dans le village</button>
+    </div>
+    <!-- Register -->
+    <div id="t-register" class="tab-body">
+      <div class="field"><label>Pseudo (min 3 caractères)</label><input id="r-user" type="text" placeholder="Ton nom..."/></div>
+      <div class="field"><label>Mot de passe (min 4 caractères)</label><input id="r-pass" type="password" placeholder="••••••••"/></div>
+      <div class="field">
+        <label>Choisis ton avatar</label>
+        <div class="avatar-grid" id="avatar-grid"></div>
+        <p class="avatar-chosen">Choisi : <span id="avatar-preview">🐺</span></p>
+      </div>
+      <button class="btn-main" onclick="register()">Créer mon compte</button>
+    </div>
+    <div id="auth-err" class="err"></div>
+  </div>
+</div>
+
+<!-- MENU -->
+<div id="s-menu" class="screen">
+  <div class="card menu-card">
+    <div class="user-pill"><span id="my-avatar">🐺</span><span id="my-name">---</span></div>
+    <div class="logo-wrap" style="margin-bottom:1.2rem">
+      <h1 class="title" style="font-size:1.6rem">LOUP-GAROU</h1>
+      <p class="subtitle">Choisissez votre destin</p>
+    </div>
+    <div class="menu-grid">
+      <div class="menu-item" onclick="createRoom()">
+        <span class="menu-ico">🏰</span>
+        <div class="menu-label">Créer un salon</div>
+        <div class="menu-sub">Devenez maître du jeu</div>
+      </div>
+      <div class="menu-item" onclick="toggleJoin()">
+        <span class="menu-ico">🚪</span>
+        <div class="menu-label">Rejoindre</div>
+        <div class="menu-sub">Entrez avec un code</div>
+      </div>
+    </div>
+    <div id="join-box" class="join-box hidden">
+      <input id="join-code" type="text" placeholder="CODE" maxlength="6" style="text-transform:uppercase"/>
+      <button class="btn-main sm" onclick="joinRoom()">Rejoindre</button>
+    </div>
+    <div id="menu-err" class="err"></div>
+    <button class="btn-ghost" onclick="logout()" style="margin-top:1rem">Déconnexion</button>
+  </div>
+</div>
+
+<!-- SALON -->
+<div id="s-room" class="screen">
+  <div class="card room-card">
+    <div class="room-top">
+      <div class="code-wrap">
+        <span class="code-lbl">CODE</span>
+        <span class="code-val" id="room-code">------</span>
+        <button class="copy-btn" onclick="copyCode()">📋</button>
+      </div>
+      <button class="btn-ghost sm" onclick="leaveRoom()">Quitter ×</button>
+    </div>
+    <div class="players-wrap" id="players-wrap"></div>
+    <div class="room-info-row">
+      <span id="player-count">0/12 joueurs</span>
+      <span style="color:var(--muted);font-size:0.78rem">Min. 4 joueurs</span>
+    </div>
+    <button class="btn-main" id="start-btn" onclick="startGame()" style="display:none">🌙 Lancer la partie</button>
+    <div id="room-err" class="err"></div>
+    <div class="roles-section">
+      <h3 class="section-title">Rôles du jeu</h3>
+      <div class="roles-wrap" id="roles-wrap"></div>
+    </div>
+  </div>
+</div>
+
+<!-- JEU -->
+<div id="s-game" class="screen">
+  <!-- Narrateur en haut -->
+  <div class="narrator-bar" id="narrator-bar">
+    <span class="narrator-quill">📜</span>
+    <span id="narrator-txt">...</span>
+  </div>
+
+  <div class="game-wrap">
+    <!-- Phase -->
+    <div class="phase-bar" id="phase-bar">
+      <span class="phase-ico" id="phase-ico">🌙</span>
+      <div class="phase-info">
+        <div class="phase-name" id="phase-name">Nuit</div>
+        <div class="phase-sub" id="phase-sub"></div>
+      </div>
+      <div class="timer" id="timer"></div>
+      <button class="music-btn" onclick="toggleMusic()" id="music-btn">🔊</button>
+    </div>
+
+    <!-- Mon rôle -->
+    <div class="my-role" id="my-role">
+      <span class="role-ico" id="role-ico">❓</span>
+      <div class="role-info">
+        <div class="role-name" id="role-name">???</div>
+        <div class="role-desc" id="role-desc"></div>
+        <span class="role-team" id="role-team"></span>
+      </div>
+    </div>
+
+    <!-- Joueurs -->
+    <div class="gplayers" id="gplayers"></div>
+
+    <!-- Action -->
+    <div class="action-box" id="action-box" style="display:none">
+      <div class="action-title" id="action-title">Action</div>
+      <div class="action-body" id="action-body"></div>
+    </div>
+
+    <!-- Log -->
+    <div class="log-box">
+      <div class="log-head">📜 Journal</div>
+      <div id="log-list"></div>
+    </div>
+
+    <!-- Chat -->
+    <div class="chat-box">
+      <div class="chat-head">💬 Village <span id="chat-hint" style="font-size:0.68rem;color:var(--muted)">(jour uniquement)</span></div>
+      <div class="chat-msgs" id="chat-msgs"></div>
+      <div class="chat-row">
+        <input id="chat-in" type="text" placeholder="Parlez..." maxlength="200"/>
+        <button onclick="sendChat()">➤</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- OVERLAY FIN -->
+<div id="end-overlay" class="end-overlay hidden">
+  <div class="end-card">
+    <div class="end-ico" id="end-ico">🏆</div>
+    <div class="end-title" id="end-title"></div>
+    <div class="end-body" id="end-body"></div>
+    <div class="end-btns">
+      <button class="btn-main" onclick="endGoMenu()">🏠 Retour au menu</button>
+      <button class="btn-main" id="btn-replay" onclick="endReplay()" style="display:none">🔄 Rejouer</button>
+    </div>
+  </div>
+</div>
+
+<!-- NOTIF -->
+<div id="notif-overlay" class="notif-overlay hidden">
+  <div class="notif-card">
+    <div class="notif-ico" id="notif-ico">🐺</div>
+    <div class="notif-title" id="notif-title"></div>
+    <div class="notif-body" id="notif-body"></div>
+    <button class="btn-main" onclick="closeNotif()">Continuer</button>
+  </div>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/app.js"></script>
+</body>
+</html>
