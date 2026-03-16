@@ -98,6 +98,16 @@
       <h3 class="section-title">Rôles du jeu</h3>
       <div class="roles-wrap" id="roles-wrap"></div>
     </div>
+    <!-- Chat salon -->
+    <div class="room-chat" style="margin-top:1rem">
+      <div class="chat-head">💬 Chat du salon</div>
+      <div class="chat-msgs" id="room-chat-msgs" style="max-height:120px"></div>
+      <div class="chat-row">
+        <input id="room-chat-in" type="text" placeholder="Discutez avant la partie..." maxlength="200"/>
+        <button onclick="sendLobbyChat()">➤</button>
+      </div>
+    </div>
+    <div id="room-log" style="max-height:70px;overflow-y:auto;margin-top:.5rem"></div>
   </div>
 </div>
 
